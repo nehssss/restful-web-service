@@ -1,5 +1,6 @@
 package com.haitaos.socialmedia.user;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,8 +28,13 @@ public class UserResource {
         return user;
     }
 
+    @DeleteMapping("users/{id}")
+    public void deleteUser(@PathVariable("id") Integer id) {
+       userDaoService.deleteById(id);
+    }
+
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         User saveUSer = userDaoService.save(user);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
