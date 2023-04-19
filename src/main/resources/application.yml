@@ -2,3 +2,8 @@
 #  level:
 #    org:
 #      springframework: info
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
