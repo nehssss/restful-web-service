@@ -1,5 +1,6 @@
 package com.haitaos.socialmedia.user;
 
+
 import jakarta.validation.Valid;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -9,38 +10,59 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-public class UserResource {
-    private UserDaoService userDaoService;
+@RequestMapping("/jpa")
+public class UserJPAResource {
+    private UserRepository userRepository;
 
-    public UserResource(UserDaoService userDaoService) {
-        this.userDaoService = userDaoService;
+    public UserJPAResource(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
     @GetMapping("/users")
     public List<User> retrieveAllUsers() {
-        return userDaoService.findAll();
+        return userRepository.findAll();
     }
 
-    @GetMapping("users/{id}")
+    @GetMapping("/users/{id}") // spring data rest will auto hidde the id
     public EntityModel<User> retrieveUser(@PathVariable("id") int id) {
-        User user = userDaoService.findOne(id);
-        if (user == null)
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty())
             throw new UserNotFoundException("id:" + id);
-        EntityModel<User> entityModel = EntityModel.of(user);
+        EntityModel<User> entityModel = EntityModel.of(user.get());
         WebMvcLinkBuilder link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).retrieveAllUsers());
         entityModel.add(link.withRel("all-users"));
         return entityModel;
     }
 
-    @DeleteMapping("users/{id}")
+
+//    @GetMapping("/users/{id}")
+//    public User retrieveUser(@PathVariable("id") Long id) {
+//        Optional<User> user = userRepository.findById(id);
+//        if (user.isEmpty())
+//            throw new UserNotFoundException("id:" + id);
+//        return user.get();
+//    }
+
+
+    @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable("id") int id) {
-       userDaoService.deleteById(id);
+        userRepository.deleteById(id);
+    }
+
+
+    @GetMapping("/users/{id}/posts")
+    public List<Post> retrievePostsForUser(@PathVariable("id") int id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty())
+            throw new UserNotFoundException("id:" + id);
+        return user.get().getPosts();
     }
 
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        User saveUSer = userDaoService.save(user);
+        User saveUSer = userRepository.save(user);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -49,3 +71,4 @@ public class UserResource {
         return ResponseEntity.created(location).build();
     }
 }
+
