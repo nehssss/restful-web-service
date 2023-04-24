@@ -1,12 +1,24 @@
 package com.haitaos.socialmedia.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
+@Entity(name = "users_details")
+@Data
+@AllArgsConstructor
 public class User {
+
+    @Id
+    @GeneratedValue
+    @JsonProperty("user_id")
     private Integer id;
     @JsonProperty("user_name")
     @Size(min=2, message = "Name should have at least 2 characters.")
@@ -15,42 +27,11 @@ public class User {
     @Past(message = "Birth Date should be in the past.")
     private LocalDate birthDate;
 
-    public User(Integer id, String name, LocalDate birthDate) {
-        this.id = id;
-        this.name = name;
-        this.birthDate = birthDate;
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Post> posts;
+
+    public User() {
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", birthDate=" + birthDate +
-                '}';
-    }
 }
