@@ -17,8 +17,11 @@ import java.util.Optional;
 public class UserJPAResource {
     private UserRepository userRepository;
 
-    public UserJPAResource(UserRepository userRepository) {
+    private PostRepository postRepository;
+
+    public UserJPAResource(UserRepository userRepository, PostRepository postRepository) {
         this.userRepository = userRepository;
+        this.postRepository = postRepository;
     }
     @GetMapping("/users")
     public List<User> retrieveAllUsers() {
@@ -70,5 +73,31 @@ public class UserJPAResource {
                 .toUri();
         return ResponseEntity.created(location).build();
     }
+
+
+    @PostMapping("/users/{id}/posts")
+    public ResponseEntity<Object> createPostsForUser(@PathVariable("id") int id
+            , @Valid @RequestBody Post post){
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty())
+            throw new UserNotFoundException("id:" + id);
+
+        post.setUser(user.get());
+
+        Post save = postRepository.save(post);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(save.getId())
+                .toUri();
+        return ResponseEntity.created(location).build();
+    }
+
+
+
+
+
+
 }
 
