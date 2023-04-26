@@ -23,7 +23,7 @@ public class UserResource {
     }
 
     @GetMapping("users/{id}")
-    public EntityModel<User> retrieveUser(@PathVariable("id") Integer id) {
+    public EntityModel<User> retrieveUser(@PathVariable("id") int id) {
         User user = userDaoService.findOne(id);
         if (user == null)
             throw new UserNotFoundException("id:" + id);
@@ -34,7 +34,7 @@ public class UserResource {
     }
 
     @DeleteMapping("users/{id}")
-    public void deleteUser(@PathVariable("id") Integer id) {
+    public void deleteUser(@PathVariable("id") int id) {
        userDaoService.deleteById(id);
     }
 
